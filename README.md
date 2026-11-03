@@ -49,7 +49,7 @@ flowchart LR
 
 ## 4. Tech stack
 
-Oracle XE · MySQL 8 · PostgreSQL (AWS RDS) · Docker · Fivetran · Snowflake · dbt Core · Apache Airflow · GitHub and GitHub Actions · AWS (EC2, RDS, SSM, IAM) · Power BI or Tableau · DBeaver · Jira
+Oracle XE · MySQL 8 · PostgreSQL (AWS RDS) · Docker · Fivetran · Snowflake · dbt Core · Apache Airflow · GitHub and GitHub Actions · AWS (EC2, RDS, SSM, IAM) · Power BI or Tableau · DBeaver
 
 ## 5. Repository structure
 
@@ -79,7 +79,6 @@ Klarity/
 | 3 | 30 Nov-11 Dec | dbt builds tested, documented Silver and Gold | v0.3 Silver and Gold |
 | 4 | 14-25 Dec | Automated pipeline, dashboard, handover and sign-off | v1.0 Delivered |
 
-Full backlog with user stories and acceptance criteria is tracked in Jira (see [`docs/jira-backlog.md`](docs/jira-backlog.md)).
 
 ## 7. Getting started
 
@@ -112,7 +111,7 @@ Run instructions for each component are added to that folder's README as its spr
 - Stop EC2 when idle. Full cleanup at project end (see runbook)
 
 
-## 11. Acceptance criteria 
+## 11. Acceptance criteria
 
 - [ ] Insert a row at the source, run the pipeline, see it on the dashboard
 - [ ] Row counts reconcile source to Bronze; Gold totals match source queries
@@ -121,5 +120,3 @@ Run instructions for each component are added to that folder's README as its spr
 - [ ] No secrets in the repo, no database exposed to the internet
 - [ ] Runbook and data dictionary complete
 - [ ] Cloud spend within the agreed budget
-
-
