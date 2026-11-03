@@ -1,0 +1,14 @@
+# Sprint 1
+python-dotenv
+pandas
+faker
+sqlalchemy
+oracledb
+mysql-connector-python
+psycopg2-binary
+boto3
+pre-commit
+
+# Sprint 3 (uncomment then)
+# dbt-snowflake
+# sqlfluff
