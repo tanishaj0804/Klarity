@@ -1,4 +1,5 @@
 # Sprint 1
+pytest
 python-dotenv
 pandas
 faker
