@@ -1,0 +1,47 @@
+# All three source databases on your own laptop (Sprint 1 development and demo).
+# Run from this folder:   docker compose --env-file ../../.env up -d
+# Stop (keeps data):      docker compose --env-file ../../.env stop
+# Wipe everything:        docker compose --env-file ../../.env down -v
+services:
+  oracle:
+    image: gvenzl/oracle-xe:21-slim
+    container_name: klarity-oracle
+    environment:
+      ORACLE_PASSWORD: ${ORACLE_PASSWORD}
+      APP_USER: ${ORACLE_USER}
+      APP_USER_PASSWORD: ${ORACLE_APP_PASSWORD}
+    ports:
+      - "1521:1521"
+    volumes:
+      - oracle_data:/opt/oracle/oradata
+
+  mysql:
+    image: mysql:8.0
+    container_name: klarity-mysql
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  postgres:
+    image: postgres:16
+    container_name: klarity-postgres
+    environment:
+      POSTGRES_DB: ${PG_DATABASE}
+      POSTGRES_USER: ${PG_USER}
+      POSTGRES_PASSWORD: ${PG_PASSWORD}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+
+volumes:
+  oracle_data:
+  mysql_data:
+  pg_data:
