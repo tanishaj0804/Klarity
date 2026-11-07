@@ -113,4 +113,3 @@ Status: **awaiting mentor approval**.
 In: Olist data in three databases, Fivetran ingestion, Snowflake, dbt, Airflow, CI/CD,
 one four-page dashboard, handover documents.
 Out: real-time streaming, machine learning, high availability, multi-region.
-
