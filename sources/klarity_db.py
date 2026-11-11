@@ -19,7 +19,11 @@ from sqlalchemy import (BigInteger, Column, DateTime, Float, Integer, MetaData,
 from sqlalchemy.engine import URL
 
 warnings.filterwarnings("ignore", message=".*Decimal.*")
-load_dotenv()
+
+# Which settings file to use. Default: .env. To aim the scripts at AWS instead of your laptop:
+#   PowerShell:  $env:KLARITY_ENV_FILE = ".env.aws"
+ENV_FILE = os.environ.get("KLARITY_ENV_FILE")
+load_dotenv(ENV_FILE) if ENV_FILE else load_dotenv()
 
 HERE = Path(__file__).resolve().parent
 REPO = HERE.parent
@@ -144,6 +148,28 @@ def get_engine(system):
     else:
         raise ValueError(system)
     return create_engine(url, pool_pre_ping=True)
+
+
+HOST_VAR = {"oracle": "ORACLE_HOST", "mysql": "MYSQL_HOST", "postgres": "PG_HOST"}
+LOCAL_HOSTS = {"localhost", "127.0.0.1", "::1"}
+
+
+def target(system):
+    """Where the scripts will connect, for example 'localhost' or '13.233.1.2'."""
+    if os.environ.get("KLARITY_SQLITE_DIR"):
+        return "sqlite"
+    return os.environ.get(HOST_VAR[system], "(not set)")
+
+
+def is_remote(system):
+    return target(system) not in LOCAL_HOSTS | {"sqlite"}
+
+
+def describe_targets(systems=SYSTEMS):
+    """One line per database, so you always see what you are about to change."""
+    env = ENV_FILE or ".env"
+    lines = [f"  {s:<9}{target(s)}" for s in systems]
+    return f"Settings file: {env}\n" + "\n".join(lines)
 
 
 def split_sql(text):

@@ -1,14 +1,14 @@
 # Sprint 1
-pytest
 python-dotenv
 pandas
-faker
-sqlalchemy
+sqlalchemy>=2.0
 oracledb
 mysql-connector-python
 psycopg2-binary
 boto3
 pre-commit
+pytest
+moto[ec2]
 
 # Sprint 3 (uncomment then)
 # dbt-snowflake

@@ -27,7 +27,7 @@ from pathlib import Path
 
 from sqlalchemy import delete, insert, select, update
 
-from klarity_db import REPO, T, get_engine
+from klarity_db import REPO, T, describe_targets, get_engine
 
 SIM_EPOCH = datetime(2025, 1, 1)  # simulator orders are newer than the 2016-2018 Olist data
 FLOW = {"created": "approved", "approved": "invoiced", "invoiced": "processing",
@@ -259,6 +259,7 @@ def main(argv=None) -> int:
     ap.add_argument("--log", default=str(REPO / "logs" / "change_log.jsonl"))
     args = ap.parse_args(argv)
 
+    print(describe_targets())
     sim = Sim(args)
     log_path = Path(args.log)
     if log_path.exists() and f'"run_id": "{sim.run_id}"' in log_path.read_text(encoding="utf-8"):
