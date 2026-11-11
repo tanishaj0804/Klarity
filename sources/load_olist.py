@@ -16,7 +16,7 @@ import pandas as pd
 from sqlalchemy import delete, func, select
 
 from klarity_db import (CSV_OF, REPO, SYSTEMS, T, apply_ddl, convert_values, csv_columns,
-                        get_engine, tables_for)
+                        describe_targets, get_engine, is_remote, tables_for)
 
 CHUNK = 20_000
 
@@ -42,6 +42,7 @@ def main(argv=None) -> int:
     p.add_argument("--only", choices=[*SYSTEMS, "all"], default="all")
     p.add_argument("--ddl", action="store_true", help="create the tables first")
     p.add_argument("--reload", action="store_true", help="delete existing rows first")
+    p.add_argument("--yes", action="store_true", help="do not ask for confirmation before --reload on a remote server")
     args = p.parse_args(argv)
 
     from pathlib import Path
@@ -52,6 +53,12 @@ def main(argv=None) -> int:
     if missing:
         print(f"ERROR: missing CSV files in {data_dir}: {missing}", file=sys.stderr)
         return 2
+
+    print(describe_targets(systems))
+    if args.reload and not args.yes and any(is_remote(s) for s in systems):
+        if input("--reload will DELETE rows on the servers above. Type yes to continue: ").strip().lower() != "yes":
+            print("Cancelled.")
+            return 1
 
     for system in systems:
         engine = get_engine(system)

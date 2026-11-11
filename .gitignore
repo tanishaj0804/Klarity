@@ -1,5 +1,7 @@
-# secrets
+# secrets (.env, .env.aws, .env.office ... but not the example)
 .env
+.env.*
+!.env.example
 *.pem
 *.key
 
