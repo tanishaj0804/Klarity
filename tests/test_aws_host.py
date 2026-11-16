@@ -75,3 +75,15 @@ def test_allow_my_ip_twice_is_harmless(aws, monkeypatch):
 def test_set_hosts_requires_existing_file(tmp_path):
     with pytest.raises(SystemExit):
         aws_host.set_hosts(tmp_path / "missing.env", "1.2.3.4")
+
+
+def test_allow_cidr_opens_only_given_ports_and_replaces_old_list(aws):
+    aws_host.main(["allow-cidr", "--label", "fivetran", "--cidr", "3.111.138.160/29", "10.1.1.1/32"], client=aws)
+    assert {(p, c) for p, c, _ in rules(aws)} == {(22, "3.111.138.160/29"), (22, "10.1.1.1/32")}
+    aws_host.main(["allow-cidr", "--label", "fivetran", "--cidr", "3.111.138.160/29"], client=aws)
+    assert {(p, c) for p, c, _ in rules(aws)} == {(22, "3.111.138.160/29")}
+
+
+def test_allow_cidr_refuses_the_whole_internet(aws):
+    with pytest.raises(SystemExit):
+        aws_host.main(["allow-cidr", "--label", "x", "--cidr", "0.0.0.0/0"], client=aws)

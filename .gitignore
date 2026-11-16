@@ -2,6 +2,7 @@
 .env
 .env.*
 !.env.example
+!.env.*.example
 *.pem
 *.key
 
@@ -22,8 +23,13 @@ logs/
 dbt/target/
 dbt/dbt_packages/
 dbt/logs/
+dbt/klarity/target/
+dbt/klarity/dbt_packages/
+dbt/klarity/logs/
+*.p8
 airflow/logs/
 
 # os / editor
 .DS_Store
 Thumbs.db
+dbt/klarity/.user.yml
