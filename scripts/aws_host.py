@@ -10,6 +10,10 @@ Commands (repo root, venv active, AWS CLI configured):
     python scripts/aws_host.py stop                         # stop (NOT terminate) to save credits
     python scripts/aws_host.py update-env .env.aws          # write the current IP into a settings file
     python scripts/aws_host.py allow-my-ip --label office   # let this laptop reach the databases
+<<<<<<< HEAD
+=======
+    python scripts/aws_host.py allow-cidr --label fivetran --cidr 3.111.138.160/29   # SSH only, for Fivetran
+>>>>>>> 144fe62 (Fix Bronze schema names and MySQL quoting; Silver builds)
 
 Uses your normal AWS settings (aws configure). Region defaults to ap-south-1.
 """
@@ -112,13 +116,49 @@ def allow_my_ip(client, label, ip):
     return cidr
 
 
+<<<<<<< HEAD
 def main(argv=None, client=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawTextHelpFormatter)
     ap.add_argument("command", choices=["status", "start", "stop", "update-env", "allow-my-ip"])
+=======
+def allow_cidrs(client, label, cidrs, ports):
+    """Allow the given networks on the given ports. Rules with the same label that are not in
+    the new list are removed, so re-running with a changed list keeps the firewall tidy."""
+    group = find_group(client)
+    note = f"{RULE_PREFIX}{label}"
+    wanted = {(port, cidr) for port in ports for cidr in cidrs}
+    for perm in group["IpPermissions"]:
+        for rng in perm.get("IpRanges", []):
+            if rng.get("Description") == note and (perm["FromPort"], rng["CidrIp"]) not in wanted:
+                client.revoke_security_group_ingress(GroupId=group["GroupId"], IpPermissions=[{
+                    "IpProtocol": "tcp", "FromPort": perm["FromPort"], "ToPort": perm["ToPort"],
+                    "IpRanges": [{"CidrIp": rng["CidrIp"]}]}])
+    for port, cidr in sorted(wanted):
+        if cidr in ("0.0.0.0/0", "::/0"):
+            raise SystemExit("Refusing to open a port to the whole internet.")
+        try:
+            client.authorize_security_group_ingress(GroupId=group["GroupId"], IpPermissions=[{
+                "IpProtocol": "tcp", "FromPort": port, "ToPort": port,
+                "IpRanges": [{"CidrIp": cidr, "Description": note}]}])
+        except ClientError as err:
+            if err.response["Error"]["Code"] != "InvalidPermission.Duplicate":
+                raise
+    return sorted(wanted)
+
+
+def main(argv=None, client=None) -> int:
+    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawTextHelpFormatter)
+    ap.add_argument("command", choices=["status", "start", "stop", "update-env", "allow-my-ip", "allow-cidr"])
+>>>>>>> 144fe62 (Fix Bronze schema names and MySQL quoting; Silver builds)
     ap.add_argument("file", nargs="?", help="settings file for update-env")
     ap.add_argument("--env-file", help="with start: also write the new IP into this settings file")
     ap.add_argument("--label", default=re.sub(r"[^a-z0-9-]", "", socket.gethostname().lower()) or "laptop",
                     help="name of this laptop for allow-my-ip, for example home or office")
+<<<<<<< HEAD
+=======
+    ap.add_argument("--cidr", nargs="+", help="with allow-cidr: one or more networks, for example 3.111.138.160/29")
+    ap.add_argument("--ports", nargs="+", type=int, default=[22], help="with allow-cidr (default: 22 only)")
+>>>>>>> 144fe62 (Fix Bronze schema names and MySQL quoting; Silver builds)
     ap.add_argument("--region", default=REGION)
     args = ap.parse_args(argv)
     client = client or boto3.client("ec2", region_name=args.region)
@@ -152,6 +192,15 @@ def main(argv=None, client=None) -> int:
     elif args.command == "allow-my-ip":
         cidr = allow_my_ip(client, args.label, my_ip())
         print(f"Allowed {cidr} (label '{args.label}') on ports {', '.join(str(p) for p in PORTS)}")
+<<<<<<< HEAD
+=======
+    elif args.command == "allow-cidr":
+        if not args.cidr:
+            raise SystemExit("Give the networks: allow-cidr --label fivetran --cidr 3.111.138.160/29")
+        done = allow_cidrs(client, args.label, args.cidr, args.ports)
+        print(f"Allowed {len(done)} rule(s) for label '{args.label}': "
+              + ", ".join(f"{c} on {p}" for p, c in done))
+>>>>>>> 144fe62 (Fix Bronze schema names and MySQL quoting; Silver builds)
     return 0
 
 

@@ -1,12 +1,22 @@
+<<<<<<< HEAD
 # secrets (.env, .env.aws, .env.office ... but not the example)
 .env
 .env.*
 !.env.example
+=======
+
+# secrets
 *.pem
 *.key
+*.p8
+.snowflake_keys/
+.aws/
 
 # python
 .venv/
+.venv*/
+venv/
+venv-dbt/
 __pycache__/
 *.pyc
 .pytest_cache/
@@ -22,8 +32,16 @@ logs/
 dbt/target/
 dbt/dbt_packages/
 dbt/logs/
+dbt/klarity/.user.yml
 airflow/logs/
+**/target/
+**/dbt_packages/
 
 # os / editor
 .DS_Store
 Thumbs.db
+.idea/
+
+# misc
+*.log
+*.zip

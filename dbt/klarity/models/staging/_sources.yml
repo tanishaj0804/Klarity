@@ -1,0 +1,33 @@
+version: 2
+
+# Bronze: raw copy written by Fivetran (or by the fallback loader for Oracle). Never edited by hand.
+sources:
+  - name: oracle
+    database: BRONZE
+    schema: "{{ var('bronze_oracle_schema') }}"
+    tables:
+      - name: orders
+        columns: [{name: order_id, tests: [unique, not_null]}]
+      - name: order_items
+      - name: order_payments
+      
+  - name: mysql
+    database: BRONZE
+    schema: "{{ var('bronze_mysql_schema') }}"
+    quoting: {schema: true, identifier: true}
+    tables:
+      - name: customers
+        columns: [{name: customer_id, quote: true, tests: [unique, not_null]}]
+      - name: order_reviews
+        columns: [{name: review_pk, quote: true, tests: [unique, not_null]}]
+
+  - name: postgres
+    database: BRONZE
+    schema: "{{ var('bronze_postgres_schema') }}"
+    tables:
+      - name: products
+        columns: [{name: product_id, tests: [unique, not_null]}]
+      - name: sellers
+        columns: [{name: seller_id, tests: [unique, not_null]}]
+      - name: category_translation
+      - name: geolocation

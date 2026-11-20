@@ -1,0 +1,56 @@
+version: 2
+
+models:
+  - name: slv_customers
+    columns:
+      - {name: customer_id, tests: [unique, not_null]}
+      - {name: customer_unique_id, tests: [not_null]}
+      - name: state
+        tests:
+          - not_null
+          - accepted_values: {values: ['AC','AL','AM','AP','BA','CE','DF','ES','GO','MA','MG','MS','MT','PA','PB','PE','PI','PR','RJ','RN','RO','RR','RS','SC','SE','SP','TO']}
+  - name: slv_sellers
+    columns:
+      - {name: seller_id, tests: [unique, not_null]}
+  - name: slv_products
+    columns:
+      - {name: product_id, tests: [unique, not_null]}
+      - {name: category_name, tests: [not_null]}
+  - name: slv_orders
+    columns:
+      - {name: order_id, tests: [unique, not_null]}
+      - name: customer_id
+        tests:
+          - not_null
+          - relationships: {to: ref('slv_customers'), field: customer_id}
+      - name: order_status
+        tests:
+          - accepted_values: {values: [created, approved, invoiced, processing, shipped, delivered, unavailable, canceled]}
+  - name: slv_order_items
+    columns:
+      - name: order_id
+        tests:
+          - not_null
+          - relationships: {to: ref('slv_orders'), field: order_id}
+  - name: slv_order_payments
+    columns:
+      - name: order_id
+        tests:
+          - not_null
+          - relationships: {to: ref('slv_orders'), field: order_id}
+  - name: slv_reviews
+    columns:
+      - {name: review_pk, tests: [unique, not_null]}
+      - name: review_score
+        tests:
+          - accepted_values: {values: [1, 2, 3, 4, 5], quote: false}
+      - name: order_id
+        tests:
+          - relationships: {to: ref('slv_orders'), field: order_id}
+  - name: slv_quarantine
+    columns:
+      - name: reason_code
+        tests:
+          - accepted_values:
+              values: [orphan_customer, impossible_timeline, invalid_price, invalid_payment_value,
+                       order_not_in_silver, invalid_score, duplicate_review]
