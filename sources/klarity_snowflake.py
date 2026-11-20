@@ -16,7 +16,7 @@ import klarity_db  # noqa: F401  (loads the .env file selected by KLARITY_ENV_FI
 BRONZE_SCHEMA = {
     "oracle": os.environ.get("BRONZE_SCHEMA_ORACLE", "ORACLE_KLARITY_APP"),
     "mysql": os.environ.get("BRONZE_SCHEMA_MYSQL", "MYSQL_CRM"),
-    "postgres": os.environ.get("BRONZE_SCHEMA_POSTGRES", "PG_PUBLIC"),
+    "postgres": os.environ.get("BRONZE_SCHEMA_POSTGRES", "POSTGRES_PUBLIC"),
 }
 
 

@@ -20,11 +20,18 @@ from verify_load import SPECS, db_side, same  # noqa: E402
 
 KINDS = ("rows", "distinct", "sum", "nulls")   # min/max dates differ in type between systems, skipped
 
-
+    
 def bronze_sql(schema, table, kind, column):
-    src = f"BRONZE.{schema}.{table.upper()}"
-    live = "COALESCE(_FIVETRAN_DELETED, FALSE) = FALSE"
-    col = column.upper() if column else None
+    if schema == "MYSQL_CRM":
+        src = f'BRONZE.{schema}."{table}"'
+        col = f'"{column}"' if column else None
+        live = 'COALESCE("_fivetran_deleted", FALSE) = FALSE'
+
+    else:
+        src = f"BRONZE.{schema}.{table.upper()}"
+        col = column.upper() if column else None
+        live = "COALESCE(_FIVETRAN_DELETED, FALSE) = FALSE"
+
     if kind == "rows":
         return f"SELECT COUNT(*) FROM {src} WHERE {live}"
     if kind == "distinct":
@@ -34,6 +41,7 @@ def bronze_sql(schema, table, kind, column):
     if kind == "nulls":
         return f"SELECT COUNT(*) FROM {src} WHERE {live} AND {col} IS NULL"
     raise ValueError(kind)
+
 
 
 def reconcile(source_value, bronze_value, schemas, skip=()):
