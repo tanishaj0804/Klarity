@@ -9,7 +9,7 @@ macro-paths: ["macros"]
 
 vars:
   # Schemas Fivetran creates inside the BRONZE database (check with: SHOW SCHEMAS IN DATABASE BRONZE)
-  bronze_postgres_schema: PG_PUBLIC
+  bronze_postgres_schema: POSTGRES_PUBLIC
   bronze_mysql_schema: MYSQL_CRM
   bronze_oracle_schema: ORACLE_KLARITY_APP
   # geolocation (1M rows) is not synced by default. Switch on with --vars '{use_geolocation: true}'

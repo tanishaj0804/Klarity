@@ -5,8 +5,8 @@
 | oracle   | orders               | nulls order_approved_at             | 276         | 276                | PASS   |
 | oracle   | orders               | nulls order_delivered_customer_date | 3343        | 3343               | PASS   |
 | oracle   | order_items          | rows                                | 113402      | 113402             | PASS   |
-| oracle   | order_items          | sum price                           | 13663905.25 | 13663905.250000002 | PASS   |
-| oracle   | order_items          | sum freight_value                   | 2271166.19  | 2271166.19         | PASS   |
+| oracle   | order_items          | sum price                           | 13663905.25 | 13663905.25        | PASS   |
+| oracle   | order_items          | sum freight_value                   | 2271166.19  | 2271166.1900000004 | PASS   |
 | oracle   | order_items          | distinct product_id                 | 32951       | 32951              | PASS   |
 | oracle   | order_payments       | rows                                | 104265      | 104265             | PASS   |
 | oracle   | order_payments       | sum payment_value                   | 16102600.28 | 16102600.28        | PASS   |
