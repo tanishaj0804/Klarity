@@ -20,7 +20,7 @@ from verify_load import SPECS, db_side, same  # noqa: E402
 
 KINDS = ("rows", "distinct", "sum", "nulls")   # min/max dates differ in type between systems, skipped
 
-    
+
 def bronze_sql(schema, table, kind, column):
     if schema == "MYSQL_CRM":
         src = f'BRONZE.{schema}."{table}"'
