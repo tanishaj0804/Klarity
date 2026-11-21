@@ -1,0 +1,2 @@
+# Install in a SEPARATE virtual environment (.venv-dbt): dbt pins versions that can clash with the rest.
+dbt-snowflake

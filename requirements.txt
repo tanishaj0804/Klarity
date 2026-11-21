@@ -10,6 +10,9 @@ pre-commit
 pytest
 moto[ec2]
 
-# Sprint 3 (uncomment then)
-# dbt-snowflake
+# Sprint 2
+snowflake-connector-python[pandas]
+cryptography
+
+# dbt lives in its own environment: requirements-dbt.txt
 # sqlfluff

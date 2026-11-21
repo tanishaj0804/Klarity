@@ -1,0 +1,15 @@
+# Connection settings come from environment variables (loaded from your .env by scripts/run_dbt.py).
+# No secrets in this file, so it is safe in Git.
+klarity:
+  target: dev
+  outputs:
+    dev:
+      type: snowflake
+      account: "{{ env_var('SNOWFLAKE_ACCOUNT') }}"
+      user: "{{ env_var('SNOWFLAKE_USER') }}"
+      private_key_path: "{{ env_var('SNOWFLAKE_PRIVATE_KEY_PATH') }}"
+      role: TRANSFORMER
+      warehouse: TRANSFORM_WH
+      database: SILVER
+      schema: CORE
+      threads: 4
