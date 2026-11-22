@@ -7,6 +7,7 @@
 
 Any arguments are passed to dbt. dbt lives in its own environment (requirements-dbt.txt).
 """
+from dbt.cli.main import dbtRunner
 import os
 import subprocess
 import sys
@@ -24,8 +25,9 @@ def main(argv):
     missing = [k for k in ("SNOWFLAKE_ACCOUNT", "SNOWFLAKE_USER", "SNOWFLAKE_PRIVATE_KEY_PATH") if not os.environ.get(k)]
     if missing:
         raise SystemExit(f"Missing in your .env file: {', '.join(missing)}")
-    cmd = ["dbt", *argv, "--project-dir", str(PROJECT), "--profiles-dir", str(PROJECT)]
-    return subprocess.call(cmd)
+
+    result = dbtRunner().invoke([*argv, "--project-dir", str(PROJECT), "--profiles-dir", str(PROJECT)])
+    return 0 if result.success else 1
 
 
 if __name__ == "__main__":

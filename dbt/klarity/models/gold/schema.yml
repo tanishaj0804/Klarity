@@ -1,0 +1,109 @@
+version: 2
+
+models:
+  - name: dim_customer
+    description: "SCD Type 2. One row per customer_id and address version, built from the snapshot snap_customers."
+    columns:
+      - {name: customer_sk, tests: [unique, not_null]}
+      - {name: customer_id, tests: [not_null]}
+      - name: effective_to
+        tests:
+          - valid_timeline:
+              arguments: {earlier: effective_from}
+      - name: is_current
+        tests: [not_null]
+  - name: dim_seller
+    description: "One row per seller."
+    config:
+      contract: {enforced: true}
+    columns:
+      - {name: seller_id, data_type: varchar, tests: [unique, not_null]}
+      - {name: zip_code_prefix, data_type: varchar}
+      - {name: city, data_type: varchar}
+      - {name: state, data_type: varchar}
+  - name: dim_product
+    columns:
+      - {name: product_id, tests: [unique, not_null]}
+      - {name: volume_cm3, tests: [not_negative]}
+  - name: dim_date
+    columns:
+      - {name: date_key, tests: [unique, not_null]}
+  - name: int_order_customer_pit
+    description: "Point-in-time join: the customer version in force at purchase. Exactly one row per order."
+    columns:
+      - {name: order_id, tests: [unique, not_null]}
+      - name: customer_sk
+        description: "Null means the snapshot has not seen this customer yet: run dbt snapshot first."
+        tests: [not_null]
+  - name: fct_order_items
+    description: "Incremental (merge). Grain: one row per order item."
+    columns:
+      - {name: order_id, tests: [not_null]}
+      - {name: price, tests: [not_negative]}
+      - {name: freight_value, tests: [not_negative]}
+      - name: customer_sk
+        tests:
+          - relationships: {to: ref('dim_customer'), field: customer_sk}
+      - name: product_id
+        tests:
+          - relationships: {to: ref('dim_product'), field: product_id, config: {severity: warn}}
+      - name: seller_id
+        tests:
+          - relationships: {to: ref('dim_seller'), field: seller_id, config: {severity: warn}}
+      - name: purchase_date
+        tests:
+          - relationships: {to: ref('dim_date'), field: date_key}
+  - name: fct_orders
+    description: "One row per order, with payments pivoted per type and the latest review."
+    columns:
+      - {name: order_id, tests: [unique, not_null]}
+      - {name: order_value, tests: [not_negative]}
+      - {name: payment_total, tests: [not_negative]}
+      - name: delivered_at
+        tests:
+          - valid_timeline:
+              arguments: {earlier: purchased_at}
+      - name: review_score
+        tests:
+          - accepted_values: {values: [1, 2, 3, 4, 5], quote: false}
+  - name: mart_customer_rfm
+    columns:
+      - {name: customer_unique_id, tests: [unique, not_null]}
+      - name: r_score
+        tests: [{accepted_values: {values: [1, 2, 3, 4, 5], quote: false}}]
+      - name: m_score
+        tests: [{accepted_values: {values: [1, 2, 3, 4, 5], quote: false}}]
+  - name: mart_cohort_retention
+    columns:
+      - {name: retention_rate, tests: [not_negative]}
+  - name: mart_late_delivery_impact
+  - name: mart_daily_orders_anomaly
+    columns:
+      - {name: date_key, tests: [unique, not_null]}
+
+# dbt unit test: runs on mocked rows, no warehouse data needed.
+# Customer c1 lived in Rio until 2018-06-01, then moved to Sao Paulo.
+unit_tests:
+  - name: pit_join_uses_address_in_force_at_purchase
+    model: int_order_customer_pit
+    given:
+      - input: ref('slv_orders')
+        rows:
+          - {order_id: before_move, customer_id: c1, purchased_at: '2018-03-01 10:00:00'}
+          - {order_id: after_move,  customer_id: c1, purchased_at: '2018-09-01 10:00:00'}
+          - {order_id: exactly_on_move, customer_id: c1, purchased_at: '2018-06-01 00:00:00'}
+          - {order_id: other_customer, customer_id: c2, purchased_at: '2018-09-01 10:00:00'}
+      - input: ref('dim_customer')
+        rows:
+          - {customer_sk: s1_v1, customer_id: c1, customer_unique_id: u1, city: Rio, state: RJ,
+             effective_from: '1900-01-01 00:00:00', effective_to: '2018-06-01 00:00:00'}
+          - {customer_sk: s1_v2, customer_id: c1, customer_unique_id: u1, city: Sao Paulo, state: SP,
+             effective_from: '2018-06-01 00:00:00', effective_to: '9999-12-31 00:00:00'}
+          - {customer_sk: s2_v1, customer_id: c2, customer_unique_id: u2, city: Recife, state: PE,
+             effective_from: '1900-01-01 00:00:00', effective_to: '9999-12-31 00:00:00'}
+    expect:
+      rows:
+        - {order_id: before_move, customer_sk: s1_v1, customer_city_at_purchase: Rio}
+        - {order_id: after_move, customer_sk: s1_v2, customer_city_at_purchase: Sao Paulo}
+        - {order_id: exactly_on_move, customer_sk: s1_v2, customer_city_at_purchase: Sao Paulo}
+        - {order_id: other_customer, customer_sk: s2_v1, customer_city_at_purchase: Recife}

@@ -15,7 +15,7 @@ import klarity_db  # noqa: F401  (loads the .env file selected by KLARITY_ENV_FI
 # Where Fivetran writes each source (schema prefix + source schema, see the instructions).
 BRONZE_SCHEMA = {
     "oracle": os.environ.get("BRONZE_SCHEMA_ORACLE", "ORACLE_KLARITY_APP"),
-    "mysql": os.environ.get("BRONZE_SCHEMA_MYSQL", "MYSQL_CRM"),
+    "mysql": os.environ.get("BRONZE_SCHEMA_MYSQL", "crm"),
     "postgres": os.environ.get("BRONZE_SCHEMA_POSTGRES", "POSTGRES_PUBLIC"),
 }
 

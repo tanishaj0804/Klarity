@@ -27,8 +27,12 @@ def injected_counts(log_path):
     entries = [json.loads(line) for line in Path(log_path).read_text(encoding="utf-8").splitlines() if line.strip()]
     deleted = {e["key"].get("order_id") for e in entries if e["type"] == "deleted_order"}
     # An order deleted later cannot be quarantined: it no longer exists.
+    deleted_reviews = {e["detail"].get("review_id") for e in entries if e["type"] == "deleted_review"} - {None}
+    # A row deleted later at the source cannot be quarantined: it no longer exists.
     return Counter(e["type"] for e in entries
-                   if e["type"] in EXPECTED and e["key"].get("order_id") not in deleted)
+                if e["type"] in EXPECTED
+                and e["key"].get("order_id") not in deleted
+                and e["key"].get("review_id") not in deleted_reviews)
 
 
 def compare(injected, quarantined):
