@@ -22,8 +22,8 @@ KINDS = ("rows", "distinct", "sum", "nulls")   # min/max dates differ in type be
 
 
 def bronze_sql(schema, table, kind, column):
-    if schema == "MYSQL_CRM":
-        src = f'BRONZE.{schema}."{table}"'
+    if schema == "crm":
+        src = f'BRONZE."{schema}"."{table}"'
         col = f'"{column}"' if column else None
         live = 'COALESCE("_fivetran_deleted", FALSE) = FALSE'
 
